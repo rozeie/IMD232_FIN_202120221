@@ -1,64 +1,117 @@
-// 캔버스 생성
+let shapes = []; //해파리 배열
+let draggedShape = null; // 드래그할 때
+let offsetX, offsetY; // 도형~마우스 위치
+
+//캔버스
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
-
-  //캔버스를 가운데로
-  centerCanvas;
   angleMode(DEGREES);
+
+  // 해파리 각각
+  // 해파리1(아래)
+  shapes.push(createShape(300, 200, -120, 34, random(15), 80));
+  // 해파리2
+  shapes.push(createShape(490, 40, 80, 8, random(7), 60));
+  // 해파리3
+  shapes.push(createShape(-300, 100, 90, 10, random(2), -30));
+  // 해파리4
+  shapes.push(createShape(-500, -150, 50, 16, random(2), 40));
+  // 해파리5
+  shapes.push(createShape(30, -150, 80, 12, random(2), 100));
 }
 
+//화면 크기 조절
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  centerCanvas();
-}
-
-function centerCanvas() {
-  var x = (windowWidth - width) / 2;
-  var y = (windowHeight - height) / 2;
-  canvas.position(x, y);
 }
 
 function draw() {
-  background(20); // 배경색 밝기 30
+  background(0);
 
-  // 첫 번째 도형 세트
-  drawShapeSet(500, 0, 0, 5, random(15));
-
-  // 두 번째 도형 세트
-  drawShapeSet(100, 150, 50, 8, random(7));
-
-  // 세 번째 도형 세트
-  drawShapeSet(-150, 100, 50, 3, random(2));
+  for (let shape of shapes) {
+    shape.display();
+  }
 }
 
-// 도형 세트 그리기 함수
-function drawShapeSet(xOffset, yOffset, zOffset, sizeMultiplier, randomOffset) {
-  rotateX(60);
+function createShape(x, y, z, sizeMultiplier, randomOffset, rotationAngle) {
+  // 해파리 초기 위치
+  return {
+    x,
+    y,
+    z,
+    sizeMultiplier,
+    randomOffset,
+    rotationAngle,
 
-  noFill();
-  stroke(255);
+    //해파리
+    display: function () {
+      // 각도
+      push();
+      translate(this.x, this.y, this.z);
+      rotateX(this.rotationAngle);
 
-  for (var i = 0; i < 20; i++) {
-    var r = map(sin(frameCount / 2 + randomOffset), -1, 1, 0, 255);
-    var g = map(i, 0, 20, 100, 200);
-    var b = map(cos(frameCount + randomOffset), -1, 1, 200, 100);
+      // 색상
+      noFill();
+      stroke(255);
 
-    stroke(r, g, b);
+      for (let i = 0; i < 20; i++) {
+        let r = map(sin(frameCount / 2 + this.randomOffset), -1, 1, 0, 255);
+        let g = map(i, 0, 20, 100, 200);
+        let b = map(cos(frameCount + this.randomOffset), -1, 1, 200, 100);
 
-    beginShape();
-    for (var j = 0; j < 360; j += 10) {
-      var rad = i * sizeMultiplier;
-      var x = rad * cos(j);
-      var y = rad * sin(j);
-      var z = sin(frameCount * 2 + i * 10 + randomOffset) * 50;
+        stroke(r, g, b);
 
-      // 위치 오프셋 적용
-      x += xOffset;
-      y += yOffset;
-      z += zOffset;
+        //해파리 모양
+        beginShape();
+        for (let j = 0; j < 360; j += 10) {
+          let rad = i * this.sizeMultiplier;
+          let shapeX = rad * cos(j);
+          let shapeY = rad * sin(j);
+          let shapeZ = sin(frameCount * 2 + i * 10 + this.randomOffset) * 25;
 
-      vertex(x, y, z);
-    }
-    endShape(CLOSE);
+          vertex(shapeX, shapeY, shapeZ);
+        }
+        endShape(CLOSE);
+      }
+      pop();
+    },
+
+    //인터렉 코딩 부분
+    checkClick: function () {
+      // 마우스 거리
+      let d = dist(mouseX - width / 2, mouseY - height / 2, this.x, this.y);
+
+      // 클릭하면 draggedShape로 저장
+      if (d < 100) {
+        draggedShape = this;
+        offsetX = this.x - mouseX;
+        offsetY = this.y - mouseY;
+      }
+    },
+
+    // 마우스 드래그 하면 도형 이동
+    drag: function () {
+      this.x = mouseX + offsetX;
+      this.y = mouseY + offsetY;
+    },
+  };
+}
+
+//mousePressed
+function mousePressed() {
+  for (let shape of shapes) {
+    shape.checkClick();
   }
+}
+
+//mouseDragged
+function mouseDragged() {
+  if (draggedShape) {
+    draggedShape.drag();
+  }
+}
+
+//mouseReleased -> draggedShape 초기화
+function mouseReleased() {
+  draggedShape = null;
 }
