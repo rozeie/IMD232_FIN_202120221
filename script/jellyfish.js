@@ -1,3 +1,10 @@
+// Original Code from: https://www.youtube.com/watch?v=vmhRlDyPHMQ&list=PLwUlLzAS3RYow0T9ZXB0IomwB-DyBRTfm
+// Colorful Coding
+// Sine wave structure in p5.js
+// Coding Project #1
+
+// Modified by MIN-JI KIM
+
 let shapes = []; //해파리 배열
 let draggedShape = null; // 드래그할 때
 let offsetX, offsetY; // 도형~마우스 위치
@@ -67,7 +74,7 @@ function createShape(x, y, z, sizeMultiplier, randomOffset, rotationAngle) {
           let rad = i * this.sizeMultiplier;
           let shapeX = rad * cos(j);
           let shapeY = rad * sin(j);
-          let shapeZ = sin(frameCount * 2 + i * 10 + this.randomOffset) * 25;
+          let shapeZ = sin(frameCount * 2 + i * 10 + this.randomOffset) * 30; // 속도조절
 
           vertex(shapeX, shapeY, shapeZ);
         }
